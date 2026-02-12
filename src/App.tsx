@@ -122,7 +122,10 @@ export const App: React.FC = () => {
           });
         });
       })
-      .catch(() => setErrorMessage(ERRORS.UPDATE))
+      .catch(error => {
+        setErrorMessage(ERRORS.UPDATE);
+        throw error;
+      })
       .finally(() =>
         setLoadingTodoIds(currentIds => currentIds.filter(id => id !== todoId)),
       );
@@ -209,7 +212,7 @@ export const App: React.FC = () => {
           onError={setErrorMessage}
           onToggleAll={handleToggleAll}
         />
-        {todos.length > 0 && (
+        {(todos.length > 0 || tempTodo) && (
           <TodoList
             visibleTodos={visibleTodos}
             loadingTodoIds={loadingTodoIds}

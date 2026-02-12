@@ -27,6 +27,10 @@ export const TodoItem: React.FC<Props> = ({
   }, [isEditing]);
 
   const save = () => {
+    if (isLoading) {
+      return;
+    }
+
     const normalizedTitle = newTitle.trim();
 
     if (normalizedTitle === '') {
@@ -82,12 +86,13 @@ export const TodoItem: React.FC<Props> = ({
           <input
             data-cy="TodoTitleField"
             type="text"
-            className="todoapp__new-todo"
+            className="todo__title-field"
             placeholder="What needs to be done?"
             value={newTitle}
             onChange={event => setNewTitle(event.target.value)}
             onKeyUp={handleKeyUp}
             onBlur={save}
+            disabled={isLoading}
             ref={editInputRef}
           />
         </form>
