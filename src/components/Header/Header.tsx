@@ -5,19 +5,21 @@ import { ERRORS } from '../../types/Todo';
 interface Props {
   allCompleted: boolean;
   loading: boolean;
-  addTodo: (title: string) => Promise<void>;
-  onError: (error: string) => void;
-  inputRef: React.RefObject<HTMLInputElement>;
   hasTodos: boolean;
+  inputRef: React.RefObject<HTMLInputElement>;
+  onError: (error: string) => void;
+  addTodo: (title: string) => Promise<void>;
+  onToggleAll: () => void;
 }
 
 export const Header: React.FC<Props> = ({
   allCompleted,
   loading,
-  addTodo,
-  onError,
   inputRef,
   hasTodos,
+  onError,
+  addTodo,
+  onToggleAll,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -52,6 +54,7 @@ export const Header: React.FC<Props> = ({
             active: allCompleted,
           })}
           data-cy="ToggleAllButton"
+          onClick={onToggleAll}
         />
       )}
 

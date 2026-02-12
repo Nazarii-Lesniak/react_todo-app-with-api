@@ -5,9 +5,10 @@ import { TEMP_TODO_ID } from '../../api/todos';
 
 interface Props {
   visibleTodos: Todo[];
-  loadingTodoIds: number[];
   tempTodo?: Todo | null;
+  loadingTodoIds: number[];
   onDelete: (id: number) => void;
+  onUpdate: (id: number, dataQuery: Partial<Todo>) => Promise<void>;
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -15,6 +16,7 @@ export const TodoList: React.FC<Props> = ({
   loadingTodoIds,
   tempTodo,
   onDelete,
+  onUpdate,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -24,6 +26,7 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           isLoading={loadingTodoIds.includes(todo.id)}
           onDelete={onDelete}
+          onUpdate={onUpdate}
         />
       ))}
       {tempTodo && (
@@ -32,6 +35,7 @@ export const TodoList: React.FC<Props> = ({
           todo={tempTodo}
           isLoading={true}
           onDelete={onDelete}
+          onUpdate={onUpdate}
         />
       )}
     </section>

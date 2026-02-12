@@ -1,6 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { createTodo, deleteTodo, getTodos, USER_ID } from './api/todos';
+
+import {
+  USER_ID,
+  getTodos,
+  createTodo,
+  deleteTodo,
+  updateTodo,
+} from './api/todos';
+
 import { ERRORS, Todo, FilterType } from './types/Todo';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
@@ -99,6 +107,27 @@ export const App: React.FC = () => {
       );
   };
 
+  const handleUpdateTodo = (todoId: number, dataQuery: Partial<Todo>) => {
+    setLoadingTodoIds(currentTodos => [...currentTodos, todoId]);
+
+    return updateTodo(todoId, dataQuery)
+      .then(() => {
+        return setTodos(currentTodos => {
+          return currentTodos.map(todo => {
+            if (todo.id === todoId) {
+              return { ...todo, ...dataQuery };
+            }
+
+            return todo;
+          });
+        });
+      })
+      .catch(() => setErrorMessage(ERRORS.UPDATE))
+      .finally(() =>
+        setLoadingTodoIds(currentIds => currentIds.filter(id => id !== todoId)),
+      );
+  };
+
   const handleClearCompleted = () => {
     const completedTodos = todos.filter(todo => todo.completed);
     const idsToDelete = completedTodos.map(todo => todo.id);
@@ -125,6 +154,44 @@ export const App: React.FC = () => {
     });
   };
 
+  const handleToggleAll = () => {
+    const shouldBeCompleted = !isAllCompleted;
+    const todosToUpdate = todos.filter(
+      todo => todo.completed !== shouldBeCompleted,
+    );
+
+    if (todosToUpdate.length === 0) {
+      return;
+    }
+
+    const idsToToggle = todosToUpdate.map(todo => todo.id);
+
+    setLoadingTodoIds(currentIds => [...currentIds, ...idsToToggle]);
+
+    Promise.all(
+      todosToUpdate.map(todo => {
+        return updateTodo(todo.id, { completed: shouldBeCompleted });
+      }),
+    )
+      .then(() => {
+        setTodos(currentTodos =>
+          currentTodos.map(todo => {
+            if (idsToToggle.includes(todo.id)) {
+              return { ...todo, completed: shouldBeCompleted };
+            }
+
+            return todo;
+          }),
+        );
+      })
+      .catch(() => setErrorMessage(ERRORS.UPDATE))
+      .finally(() => {
+        setLoadingTodoIds(currentIds =>
+          currentIds.filter(id => !idsToToggle.includes(id)),
+        );
+      });
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -135,11 +202,12 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           allCompleted={isAllCompleted}
-          addTodo={handleAddTodo}
           loading={tempTodo !== null}
-          onError={setErrorMessage}
           inputRef={todoInputRef}
           hasTodos={todos.length > 0}
+          addTodo={handleAddTodo}
+          onError={setErrorMessage}
+          onToggleAll={handleToggleAll}
         />
         {todos.length > 0 && (
           <TodoList
@@ -147,6 +215,7 @@ export const App: React.FC = () => {
             loadingTodoIds={loadingTodoIds}
             tempTodo={tempTodo}
             onDelete={handleDeleteTodo}
+            onUpdate={handleUpdateTodo}
           />
         )}
         {todos.length > 0 && (
