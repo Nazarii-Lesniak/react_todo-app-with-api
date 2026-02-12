@@ -2,7 +2,8 @@ import React from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
-import { TEMP_TODO_ID } from '../../api/todos';
+
+const TEMP_TODO_ID = 0;
 
 interface Props {
   visibleTodos: Todo[];
